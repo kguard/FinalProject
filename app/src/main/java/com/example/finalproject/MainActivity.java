@@ -9,6 +9,7 @@ import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
+import android.graphics.EmbossMaskFilter;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,6 +24,10 @@ public class MainActivity extends AppCompatActivity {
     static float scaleX = 1, scaleY = 1;
     static float angle = 0;
     static float satur = 1;
+
+    static boolean blur = false;
+    static boolean emboss = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
         ibBright.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                satur = satur +0.2f;
+                satur = satur + 0.2f;
 //                if(satur > 1)
 //                    satur = 1;
                 graphicView.invalidate();
@@ -87,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
         ibBlur.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                blur = !blur;
                 graphicView.invalidate();
             }
         });
@@ -95,7 +100,8 @@ public class MainActivity extends AppCompatActivity {
         ibEmboss.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                emboss = !emboss;
+                graphicView.invalidate();
             }
         });
 
@@ -112,7 +118,6 @@ public class MainActivity extends AppCompatActivity {
             Bitmap picture = BitmapFactory.decodeResource(getResources(), R.drawable.lena256);
             int picX = (this.getWidth() - picture.getWidth()) / 2;
             int picY = (this.getHeight() - picture.getHeight()) / 2;
-
             int cenX = this.getWidth() / 2;
             int cenY = this.getHeight() / 2;
 
@@ -122,13 +127,20 @@ public class MainActivity extends AppCompatActivity {
 
             Paint paint = new Paint();
             ColorMatrix cm = new ColorMatrix();
-
             cm.setSaturation(satur);
-
             paint.setColorFilter(new ColorMatrixColorFilter(cm));
-            canvas.drawBitmap(picture,picX,picY,paint);
-            picture.recycle();
 
+            if (blur) {
+                BlurMaskFilter bm = new BlurMaskFilter(30, BlurMaskFilter.Blur.NORMAL);
+                paint.setMaskFilter(bm);
+            }
+
+            if (emboss) {
+                EmbossMaskFilter em = new EmbossMaskFilter(new float[]{3, 3, 3}, 0.5f, 5, 10);
+                paint.setMaskFilter(em);
+            }
+            canvas.drawBitmap(picture, picX, picY, paint);
+            picture.recycle();
         }
     }
 
